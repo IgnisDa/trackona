@@ -997,6 +997,7 @@ export type MediaCollectionContentsResults = {
 
 export type MediaFilter = {
   collections?: InputMaybe<Array<Scalars['String']['input']>>;
+  dateRange?: InputMaybe<ApplicationDateRangeInput>;
   general?: InputMaybe<MediaGeneralFilter>;
 };
 
@@ -1289,8 +1290,6 @@ export type MutationRoot = {
   presignedPutS3Url: PresignedPutUrlResponse;
   /** Get an access token using an access link. */
   processAccessLink: ProcessAccessLinkResult;
-  /** Refresh the user metadata recommendations. */
-  refreshUserMetadataRecommendations: Scalars['Boolean']['output'];
   /**
    * Create a new user for the service. Also set their `lot` as admin if
    * they are the first user.
@@ -2002,6 +2001,11 @@ export type QueryRootUserMetadataDetailsArgs = {
 
 export type QueryRootUserMetadataGroupDetailsArgs = {
   metadataGroupId: Scalars['String']['input'];
+};
+
+
+export type QueryRootUserMetadataRecommendationsArgs = {
+  shouldRefresh?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 

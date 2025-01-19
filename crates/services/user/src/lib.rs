@@ -60,6 +60,7 @@ impl UserService {
     pub async fn user_metadata_recommendations(
         &self,
         user_id: &String,
+        should_refresh: Option<bool>,
     ) -> Result<UserMetadataRecommendationsResponse> {
         let cc = &self.0.cache_service;
         let metadata_recommendations_key =
@@ -67,11 +68,18 @@ impl UserService {
                 input: (),
                 user_id: user_id.to_owned(),
             });
-        if let Some(recommendations) = cc
-            .get_value::<UserMetadataRecommendationsResponse>(metadata_recommendations_key.clone())
-            .await
-        {
-            return Ok(recommendations);
+        match should_refresh {
+            Some(true) => {}
+            _ => {
+                if let Some(recommendations) = cc
+                    .get_value::<UserMetadataRecommendationsResponse>(
+                        metadata_recommendations_key.clone(),
+                    )
+                    .await
+                {
+                    return Ok(recommendations);
+                };
+            }
         };
         let preferences = user_by_id(user_id, &self.0).await?.preferences;
         let limit = preferences
@@ -118,19 +126,6 @@ impl UserService {
         )
         .await?;
         Ok(recommendations)
-    }
-
-    pub async fn refresh_user_metadata_recommendations(&self, user_id: &String) -> Result<bool> {
-        self.0
-            .cache_service
-            .expire_key(ApplicationCacheKey::UserMetadataRecommendations(
-                UserLevelCacheKey {
-                    input: (),
-                    user_id: user_id.to_owned(),
-                },
-            ))
-            .await?;
-        Ok(true)
     }
 
     pub async fn user_access_links(&self, user_id: &String) -> Result<Vec<access_link::Model>> {

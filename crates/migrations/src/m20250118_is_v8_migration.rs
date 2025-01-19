@@ -7,18 +7,13 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let db = manager.get_connection();
-        if !manager
-            .has_column("daily_user_activity", "hour_records")
-            .await?
-        {
-            db.execute_unprepared(
-                r#"
-DELETE FROM "daily_user_activity";
-ALTER TABLE "daily_user_activity" ADD COLUMN "hour_records" JSONB NOT NULL DEFAULT '[]';
+        db.execute_unprepared(
+            r#"
+ALTER TABLE "application_cache" ALTER COLUMN "version" DROP NOT NULL;
+ALTER TABLE "application_cache" ALTER COLUMN "expires_at" SET NOT NULL;
         "#,
-            )
-            .await?;
-        }
+        )
+        .await?;
         Ok(())
     }
 
